@@ -71,7 +71,7 @@
 
 <h3>PopupJS</h3>
 <div id="content">
-  {#if isInvalid}
+  {#if isInvalid && isPopup}
     <p>Could not load referenced file.</p><br>
     <p>Stuck? Go <a href="/info">here</a></p>
   {:else if !hasFile}
@@ -120,6 +120,7 @@
     {/if}
   {:else}
     <p>Please load this page as a popup.</p>
+    <p>Stuck? Go <a href="/info">here</a></p>
   {/if}
 </div>
 
