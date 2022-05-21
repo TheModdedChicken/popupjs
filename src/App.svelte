@@ -20,7 +20,7 @@
 	
 			<p>
 				PopupJS can be used to load scripts into sites from foreign domains via DevTools.
-				Go <a href="/open">here</a> to learn how to use it.
+				Go <a href="/info">here</a> to learn how to use it.
 			</p>
 		</Route>
 
