@@ -12,7 +12,15 @@
   var isInvalid = false;
   var isRunning = false;
 
-  var fileData = null;
+  var fileData: { 
+    type?: string, 
+    name?: string, 
+    author?: string, 
+    file: string, 
+    url: string, 
+    description?: string, 
+    script?: string 
+  } | null = null;
 
   if (hasFile) {
     const fileURL = DeconstructURL(params.get('file'));
@@ -33,49 +41,57 @@
             name: data.name,
             author: data.author,
             file: deFile.file,
-            location: deFile.location,
+            url: deFile.location,
             description: data.description,
             script: await (await fetch(data.file)).text()
           }
         } else {
+          const data = await file.text();
+          const meta = (() => {
+            if (!data.includes("/*PPJS") && !data.includes("PPJS*/")) return {};
+            const info = data.split("/*PPJS")[1].split("PPJS*/")[0];
+
+            return {
+              name: info.includes('name=') ? info.split('name="')[1].split('"')[0] : null,
+              author: info.includes('author=') ? info.split('author="')[1].split('"')[0] : null,
+              description: info.includes('description=') ? info.split('description="')[1].split('"')[0] : null
+            }
+          })();
+
           fileData = {
-            type: ext,
-            name: null,
-            author: null,
+            type: ext || "html",
+            name: meta.name || null,
+            author: meta.author || null,
             file: fileURL.file,
             url: fileURL.location,
-            description: null,
-            script: ext === "js" ? await file.text() : null
+            description: meta.description || null,
+            script: ext === "js" ? data : null
           }
         }
-      } catch { isInvalid = true }
+      } catch (err) { isInvalid = true; console.log(err) }
     })()
   }
 
-  function DeconstructURL (url) {
-    const fileLoc = (() => { 
+  function DeconstructURL (url: string) {
+    const location = (() => { 
       var file = url; 
       if (!file.includes('http://') && !file.includes('https://')) file = 'https://' + file;
       try { return new URL(file).href; } catch { isInvalid = true }
     })();
 
-    const fileFull = (() => {
-      const split = fileLoc.split('/');
+    const file = (() => {
+      const split = location.split('/');
       console.log(split)
       return split[split.length - 1];
     })();
 
-    const fileExt = (() => {
-      const split = fileFull.split('.');
+    const ext = (() => {
+      const split = file.split('.');
       const ext = split[split.length - 1];
-      return ["js", "json", "html"].includes(ext) ? ext : null;
+      return ["js", "json"].includes(ext) ? ext : null;
     })();
 
-    return {
-      location: fileLoc,
-      file: fileFull,
-      ext: fileExt
-    }
+    return { location, file, ext }
   }
 </script>
 
@@ -96,7 +112,7 @@
         </p>
       </div>
       <div class="popup-ask">
-        <div><span style="color: #2d3436; font-size: 2vh;">File: </span><span id="script-name">{fileData.file || "Unknown"}</span></div>
+        <div><span style="color: #2d3436; font-size: 2vh;">File: </span><span id="script-file">{fileData.file || "Unknown"}</span></div>
         <div><span style="color: #2d3436; font-size: 2vh;">Name: </span><span id="script-name">{fileData.name || "Unknown"}</span></div>
         <div><span style="color: #2d3436; font-size: 2vh;">Author: </span><span id="script-author">{fileData.author || "Unknown"}</span></div>
         <div>
@@ -115,7 +131,7 @@
                 command: "popupjs:eval",
                 body: `window.open('', '${window.name}').close();\n` + fileData.script
               }, "*")
-            } else window.location = fileData.location;
+            } else window.location.href = fileData.url;
             isRunning = true;
 
           }}>Run</button>
