@@ -1,10 +1,16 @@
-<script>
-  import DOMPurify from 'dompurify';
+<script lang="ts">
+  window.addEventListener("message", (event) => {
+    if (event.data.from !== "popupjs") return;
+
+    console.log(event.data.command)
+    if (event.data.command === "res:inject:success") window.close();
+  })
 
   const params = new URLSearchParams(window.location.search);
   const hasFile = params.has('file');
   const isPopup = (window.opener && window.opener !== window);
   var isInvalid = false;
+  var isRunning = false;
 
   var fileData = null;
 
@@ -20,11 +26,14 @@
         console.log(`[PopupJS] Loading "${fileURL.location}"`)
         if (ext === "json") {
           const data = await file.json();
+          const deFile = DeconstructURL(data.file);
+
           fileData = {
             type: ext,
             name: data.name,
             author: data.author,
-            file: DeconstructURL(data.file).file,
+            file: deFile.file,
+            location: deFile.location,
             description: data.description,
             script: await (await fetch(data.file)).text()
           }
@@ -34,6 +43,7 @@
             name: null,
             author: null,
             file: fileURL.file,
+            url: fileURL.location,
             description: null,
             script: ext === "js" ? await file.text() : null
           }
@@ -102,20 +112,23 @@
             console.log("[PopupJS] Running Script")
             if (["js", "json"].includes(fileData.type)) {
               window.opener.window.postMessage({
-                from: "popupjs",
-                command: "eval",
-                body: DOMPurify.sanitize(fileData.script)
+                command: "popupjs:eval",
+                body: `window.open('', '${window.name}').close();\n` + fileData.script
               }, "*")
-            } else window.location = fileData.file;
-            window.close()
+            } else window.location = fileData.location;
+            isRunning = true;
 
           }}>Run</button>
         </div>
       </div>
-    {:else}
+    {:else if !isRunning}
       <p>
         <span style="color: #fdcb6e; font-size: 2vh;">Loading</span><br>
         If this takes longer than 10 seconds please check your network connection.
+      </p>
+    {:else}
+      <p>
+        Attempting to run...
       </p>
     {/if}
   {:else}

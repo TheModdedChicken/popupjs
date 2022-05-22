@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Router, Route, Link } from "svelte-navigator";
 	import Open from "./pages/Open.svelte";
 	import Info from "./pages/Info.svelte";
