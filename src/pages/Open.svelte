@@ -34,7 +34,7 @@
         console.log(`[PopupJS] Loading "${fileURL.location}"`)
         if (ext === "json") {
           const data = await file.json();
-          const deFile = DeconstructURL(data.file);
+          const deFile = DeconstructURL(data.url);
 
           fileData = {
             type: ext,
