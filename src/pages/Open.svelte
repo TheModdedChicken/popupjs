@@ -43,8 +43,10 @@
             file: deFile.file,
             url: deFile.location,
             description: data.description,
-            script: await (await fetch(data.file)).text()
+            script: await (await fetch(data.url)).text()
           }
+
+          console.log(fileData)
         } else {
           const data = await file.text();
           const meta = (() => {
