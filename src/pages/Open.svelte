@@ -1,10 +1,10 @@
 <script lang="ts">
-  window.addEventListener("message", (event) => {
+  /*window.addEventListener("message", (event) => {
     if (event.data.from !== "popupjs") return;
 
     console.log(event.data.command)
     if (event.data.command === "res:inject:success") window.close();
-  })
+  })*/
 
   const params = new URLSearchParams(window.location.search);
   const hasFile = params.has('file');
@@ -70,7 +70,7 @@
             script: ext === "js" ? data : null
           }
         }
-      } catch (err) { isInvalid = true; console.log(err) }
+      } catch (err) { isInvalid = true; console.error(err) }
     })()
   }
 
