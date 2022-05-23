@@ -22,6 +22,8 @@
     script?: string 
   } | null = null;
 
+  if (isPopup) window.resizeTo(500, 700);
+
   if (hasFile) {
     const fileURL = DeconstructURL(params.get('file'));
     
