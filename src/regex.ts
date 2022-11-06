@@ -1,0 +1,1 @@
+export const ClientScriptTagRegex = /(<script[^(<!\-\-ppjs_server\-\->)]* ppjs_client( [^>]*>| *>))/;
